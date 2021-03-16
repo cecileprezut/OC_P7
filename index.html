@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    </link>
+
+    <script src="Restaurant.js"></script>
+    <script src="config.js"></script>
+    <script src="./displayFunctions.js"></script>
+    <script src="./constants.js"></script>
+    <script src="./utils.js"></script>
+    <script src="./index.js"></script>
+    <script
+        src="https://maps.googleapis.com/maps/api/js?key={YOUR_API_KEY}&callback=initMap&libraries=&v=weekly&libraries=places"
+        defer></script>
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css"
+        integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns"
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+        integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+
+    <!-- police headers -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@100;300&display=swap" rel="stylesheet">
+
+    <!-- police body -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100&display=swap" rel="stylesheet">
+
+    <link rel="icon" href="images/favicon.ico" />
+
+    <title>Restaurants.com</title>
+</head>
+
+<body>
+    <div id="container">
+
+        <section id="leftSection">
+            <header class="text-center mb-2">
+                <img src="./images/logo_site_restos.png" alt="logo restaurants.com" class="logo">
+            </header>
+
+            <div id="restaurantClicked" style="display: none" class="card">
+                <div id="restaurantClickedHeader" class="card-header"></div>
+                <div class="card-body">
+                    <div id="streetView"></div>
+                    <div id="restaurantClickedInfo"></div>
+                </div>
+            </div>
+
+            <div id="filterAndRestaurants">
+                <form id="filterRestaurantsForm">
+                    <h2>Filtrer les résultats par note</h2>
+                    <label for="minNote">Note minimale :</label>
+                    <input type="number" id="minNote" name="minNote" min="1" max="4" value="1">
+                    <label for="maxNote">Note maximale :</label>
+                    <input type="number" id="maxNote" name="maxNote" min="2" max="5" value="5">
+                    <p id="filterErrorMessage"></p>
+                    <input class="btn btn-info btn-lg" id="filterFormSubmitBtn" type="submit" value="Filtrer"></input>
+                    <input class="btn btn-info btn-lg" id="removeFilterSubmitBtn" type="submit"
+                        value="Enlever le filtre"></input>
+                </form>
+                <div id="restaurantsListDiv">
+                    <div id="restaurantsListHeader"></div>
+                    <div id="restaurantsList">
+                        <div class="loading">Chargement en cours</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section id="rightSection">
+            <div id="map_canvas">
+                <div id="map"></div>
+            </div>
+        </section>
+
+        <!-- Modale d'ajout d'avis -->
+        <div class="modal fade" id="commentModal" tabindex="-1" aria-labelledby="commentModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="commentModalLabel">Ajouter un avis</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id='addCommentForm'>
+                            <label for="newCommentText">Avis :</label>
+                            <textarea type="textarea" id="newCommentText" name="newCommentText" rows="7"
+                                class="form-control" required></textarea>
+                            <br />
+                            <label for="newRating">Note sur 5 :</label>
+                            <input type="number" id="newRating" name="newRating" min="1" max="5" class="form-control"
+                                required>
+                            <br />
+                            <div class="modal-footer">
+                                <button id="addCommentClose" type="button" class="btn btn-secondary"
+                                    data-dismiss="modal">Fermer</button>
+                                <input id="addComment" class="btn btn-info" type="submit" value="Ajouter"></input>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modale d'ajout de restaurant -->
+        <div class="modal fade" id="restaurantModal" tabindex="-1" aria-labelledby="restaurantModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="restaurantModalLabel">Ajouter un nouveau restaurant</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id='addRestaurantForm'>
+                            <label for="newRestaurantName">Nom du restaurant :</label>
+                            <input type="text" id="newRestaurantName" name="newRestaurantName" class="form-control"
+                                required>
+                            <label for="newRestaurantAddress">Adresse :</label>
+                            <textarea type="textarea" id="newRestaurantAddress" name="newRestaurantAddress" rows="5"
+                                maxlength="200" class="form-control" required></textarea>
+                            <p id="newRestaurantCoord">Coordonnées GPS :</p>
+                            <ul>
+                                <li>
+                                    <p>Latitude :</p>
+                                    <p id="newRestaurantLat"></p>
+
+                                </li>
+                                <li>
+                                    <p>Longitude :</p>
+                                    <p id="newRestaurantLng"></p>
+                            </ul>
+                            <input id="addRestaurantFormSubmitBtn" class="btn btn-info" type="submit"
+                                value="Ajouter"></input>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modale de détails d'un restaurant -->
+        <div class="modal fade" id="restaurantDetailsModal" tabindex="-1" aria-labelledby="restaurantDetailsModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="restaurantDetailsModalLabel"></h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" id="comments">
+
+                    </div>
+                    <div class="modal-footer" id="commentModalFooter">
+                        <button id="restaurantDetailsCloseBtn" class="btn btn-info" type="button">Fermer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

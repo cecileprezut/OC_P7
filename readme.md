@@ -10,7 +10,7 @@ Replace YOUR_API_KEY by your actual Google API key in the index.html file
 
 and in the config.js file. 
 
-![Capture du site Restaurants.com](doc/capture_site.png)
+![Screenshot of Restaurants.com](doc/capture_site.png)
 
-##Developer
+## Developer
 Cécile Prézut
